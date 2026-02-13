@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "puppeteer-core": "^24.37.2",
+    "react-countup": "^6.5.3",
+    "react-hot-toast": "^2.6.0",
+    "react-spinners": "^0.17.0",
+    "react-tsparticles": "^2.12.2"
+  }
+}
