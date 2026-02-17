@@ -94,7 +94,14 @@ export default function Dashboard() {
       {/* Performance Chart */}
       <div style={{marginTop:40}}>
         <h2>Performance Chart</h2>
-        {totalScans > 0 && <Bar data={chartData} />}
+        {totalScans > 0 && (
+          <div style={{ width: "800px", height: "400px" }}>
+            <Bar 
+              data={chartData}
+              options={{ maintainAspectRatio: false }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Scan History */}
@@ -135,7 +142,12 @@ export default function Dashboard() {
 
             <p>Scores: {c.score1} — {c.score2}</p>
 
-            <Bar data={compChart}/>
+            <div style={{ width: "800px", height: "350px" }}>
+              <Bar 
+                data={compChart}
+                options={{ maintainAspectRatio: false }}
+              />
+            </div>
 
           </div>
         );

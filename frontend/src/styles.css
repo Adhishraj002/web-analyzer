@@ -65,7 +65,7 @@ body::after {
 /* Root children keep vertical spacing, horizontal handled per-section */
 #root > * {
   padding-inline: 0;
-  padding-bottom: 2.5rem;
+  padding-bottom: 0;
 }
 
 /* ========= TYPOGRAPHY ========= */
@@ -361,11 +361,13 @@ li::before {
 
 .page-shell {
   min-height: 100vh;
+  padding-top: 120px; 
   display: flex;
   align-items: center;
   justify-content: center;
   padding-block: clamp(3rem, 6vh, 4.5rem);
   padding-inline: clamp(1.25rem, 3vw, 2.75rem);
+  
 }
 
 .page-shell--top {
@@ -527,30 +529,59 @@ li::before {
   color: #e5e7eb;
 }
 
+.auth-container {
+  width: 100%;
+  max-width: 420px;   /* 🔥 control login/signup width here */
+}
+
 /* ========= NAV + HAMBURGER ========= */
 
 .nav-bar {
-  position: sticky;
+  position: fixed;   /* 🔥 change this */
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw; /* span full window width */
-  box-sizing: border-box;
-  z-index: 40;
+  left: 0;
+  width: 100%;
+  height: 70px;
+
+  z-index: 9999;     /* 🔥 VERY IMPORTANT */
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem clamp(1.25rem, 3vw, 2.75rem);
-  background: linear-gradient(90deg, rgba(15, 23, 42, 0.98), rgba(30, 64, 175, 0.96));
+  transform: translateZ(1000px);
+
+  padding: 0 40px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.98),
+    rgba(30, 64, 175, 0.96)
+  );
+
   box-shadow:
     0 12px 35px rgba(15, 23, 42, 0.95),
     0 0 0 1px rgba(30, 64, 175, 0.85);
 }
 
-.nav-left {
+.nav-left,
+.nav-center,
+.nav-right {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+}
+
+.nav-left {
+  justify-content: flex-start;
+  padding-left: 20px;
+}
+
+.nav-center {
+  justify-content: center;  /* 🔥 TRUE CENTER */
+}
+
+.nav-right {
+  justify-content: flex-end;
 }
 
 .nav-logo-text {
@@ -758,3 +789,14 @@ li::before {
   }
 }
 
+.analyzer-transition {
+  width: 680px;
+  margin: 0 auto;
+  transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.analyzer-transition.expanded {
+  width: 95%;
+  max-width: 1400px;
+  margin-top: -20px;
+}

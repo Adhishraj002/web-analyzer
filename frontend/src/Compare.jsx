@@ -102,66 +102,89 @@ export default function Compare() {
   };
   
   return (
-    <div style={{padding:40}}>
+    <div className="page-shell page-shell--top">
+      <div className="glass compare-shell analyzer-card">
+
       
-      <h2>Website Comparison</h2>
-      
-      {/* INPUTS */}
-      <input
-        className="input-modern"
-        placeholder="First URL"
-        value={url1}
-        onChange={e=>setUrl1(e.target.value)}
-      />
+        <h2>Website Comparison</h2>
+        
+        {/* INPUTS */}
+        <input
+          className="input-modern"
+          placeholder="First URL"
+          value={url1}
+          onChange={e=>setUrl1(e.target.value)}
+        />
 
-      <input
-        className="input-modern"
-        placeholder="Second URL"
-        value={url2}
-        onChange={e=>setUrl2(e.target.value)}
-      />
+        <input
+          className="input-modern"
+          placeholder="Second URL"
+          value={url2}
+          onChange={e=>setUrl2(e.target.value)}
+        />
 
-      <button className="btn-premium" onClick={compare}>
-        Compare
-      </button>
+        <button className="btn-premium" onClick={compare}>
+          Compare
+        </button>
 
-      {loading && <p>Analyzing...</p>}
+        {loading && <p>Analyzing...</p>}
 
-      {/* DASHBOARD STYLE RESULT */}
-      {result && (
+        {/* DASHBOARD STYLE RESULT */}
+        {result && (
+          <div style={{ marginTop: 40 }}>
 
-        <>
-        <div style={{
-          display:"flex",
-          gap:20,
-          marginTop:30
-        }}>
+            {/* 🔹 SCORE CARDS */}
+            <div style={{
+              display: "flex",
+              gap: 20,
+              marginBottom: 30
+            }}>
 
-          <div className="glass" style={{padding:20}}>
-            <h3>Site A Score</h3>
-            <h1>{result.score1}</h1>
-          </div>
+              <div className="glass" style={{ padding: 20, flex: 1 }}>
+                <h3>Site A Score</h3>
+                <h1 style={{ fontSize: 40 }}>{result.score1}</h1>
+              </div>
 
-          <div className="glass" style={{padding:20}}>
-            <h3>Site B Score</h3>
-            <h1>{result.score2}</h1>
-          </div>
+              <div className="glass" style={{ padding: 20, flex: 1 }}>
+                <h3>Site B Score</h3>
+                <h1 style={{ fontSize: 40 }}>{result.score2}</h1>
+              </div>
 
-        </div>
-
-        {/* CHART */}
-        {chartData && (
-            <div style={{marginTop:40}}>
-                <h3>Comparison Chart</h3>
-                <div style={{maxWidth:100}}>
-                    <Bar data={chartData}/>
-                </div>
             </div>
+
+            {/* 🔹 CHART BELOW SCORES */}
+            <div style={{ maxWidth: 600 }}>
+              <h3>Score Comparison Chart</h3>
+
+              <Bar
+                data={{
+                  labels: ["Site A", "Site B"],
+                  datasets: [{
+                    label: "Overall Score",
+                    data: [result.score1, result.score2],
+                    backgroundColor: ["#4caf50", "#2196f3"],
+                    borderRadius: 8
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      min: 0,
+                      max: 100
+                    }
+                  }
+                }}
+              />
+            </div>
+
+          </div>
         )}
-
-        </>
-      )}
-
+        
+      </div>
     </div>
  );
 

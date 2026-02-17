@@ -23,26 +23,30 @@ export default function Signup() {
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Sign Up</h2>
+    <div className="auth-container page-shell--top">
+      <div className="glass auth-card analyzer-card">
+        
+        <h2>Sign Up</h2>
 
-      <input
-        placeholder="Email"
-        onChange={e => setEmail(e.target.value)}
-      /><br />
+        <input
+          className="input-modern"
+          placeholder="Email"
+          onChange={e => setEmail(e.target.value)}
+        /><br />
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={e => setPassword(e.target.value)}
-      /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={e => setPassword(e.target.value)}
+        /><br />
 
-      <button onClick={signup}>Create Account</button>
+        <button onClick={signup}>Create Account</button>
 
-      <p>
-        Already registered?
-        <Link to="/login"> Login</Link>
-      </p>
+        <p>
+          Already registered?
+          <Link to="/login"> Login</Link>
+        </p>
+      </div>
     </div>
   );
 }

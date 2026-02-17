@@ -40,6 +40,7 @@ function App() {
   const [chat,setChat] = useState([]);
   const [question,setQuestion] = useState("");
   const [competitors,setCompetitors] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   const analyze = async () => {
 
@@ -47,6 +48,7 @@ function App() {
       toast.error("Login required")
       return;
     }
+    setExpanded(true);   // expand immediately
     setLoading(true);
 
     try {
@@ -75,12 +77,15 @@ function App() {
       fetchHistory();
 
       // ⭐ AUTO COMPETITOR SCAN
-      const comp = await axios.post(
-        "http://localhost:5000/competitors",
-        { url: fixedUrl }
-      );
-
-      setCompetitors(comp.data);
+      try {
+        const comp = await axios.post(
+          "http://localhost:5000/competitors",
+          { url: fixedUrl }
+        );
+        setCompetitors(comp.data);
+      } catch (err) {
+        console.log("Competitor scan skipped");
+      }
 
       toast.success("Analysis complete ");
 
@@ -172,20 +177,115 @@ function App() {
   },[]);
 
 
-
   const downloadPDF = async () => {
 
-    const element = document.getElementById("report");
+    if (!result) return;
 
-    const canvas = await html2canvas(element);
-  
-    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-    const pdf = new jsPDF();
-  
-    pdf.addImage(imgData, "PNG", 10, 10, 180, 0);
+    const pageWidth = 210;
+    const margin = 20;
+    let y = 20;
 
-    pdf.save("analysis-report.pdf");
+    // ===== TITLE =====
+    pdf.setFontSize(20);
+    pdf.text("AI Website Audit Report", margin, y);
+    y += 10;
+
+    pdf.setFontSize(10);
+    pdf.text(`URL: ${url}`, margin, y);
+    y += 6;
+    pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+    y += 12;
+
+    // ===== OVERALL SCORE =====
+    pdf.setFontSize(16);
+    pdf.text("Overall Score", margin, y);
+    y += 12;
+
+    pdf.setFontSize(30);
+    pdf.text(`${result.score}/100`, margin, y);
+    y += 15;
+
+    // ===== CATEGORY BREAKDOWN =====
+    pdf.setFontSize(14);
+    pdf.text("Category Breakdown", margin, y);
+    y += 8;
+
+    pdf.setFontSize(11);
+    pdf.text(`Performance: ${result.performance}`, margin, y); y += 6;
+    pdf.text(`Accessibility: ${result.accessibility}`, margin, y); y += 6;
+    pdf.text(`SEO: ${result.seo}`, margin, y); y += 6;
+    pdf.text(`Best Practices: ${result.bestPractices}`, margin, y); y += 12;
+
+    // ===== ISSUES =====
+    pdf.setFontSize(14);
+    pdf.text("Detected Issues", margin, y);
+    y += 8;
+
+    pdf.setFontSize(11);
+
+    if (result.issues.length === 0) {
+      pdf.text("No major issues detected.", margin, y);
+      y += 6;
+    } else {
+      result.issues.forEach(issue => {
+        pdf.text(`• ${issue}`, margin, y);
+        y += 6;
+      });
+    }
+
+    y += 6;
+
+    // ===== SUGGESTIONS =====
+    pdf.setFontSize(14);
+    pdf.text("Recommendations", margin, y);
+    y += 8;
+
+    pdf.setFontSize(11);
+    result.suggestions.forEach(s => {
+      pdf.text(`• ${s}`, margin, y);
+      y += 6;
+    });
+
+    y += 10;
+
+    // ===== COMPETITOR SECTION =====
+    if (competitors.length > 0) {
+
+      if (y > 260) {
+        pdf.addPage();
+        y = 20;
+      }
+
+      pdf.setFontSize(14);
+      pdf.text("Competitor Benchmark", margin, y);
+      y += 8;
+
+      pdf.setFontSize(11);
+      competitors.forEach(c => {
+        pdf.text(`${c.url} — Score: ${Math.round(c.score)}`, margin, y);
+        y += 6;
+      });
+    }
+
+    // ===== AI SUMMARY =====
+    if (result.aiReport) {
+
+      pdf.addPage();
+      y = 20;
+
+      pdf.setFontSize(16);
+      pdf.text("AI Expert Analysis", margin, y);
+      y += 10;
+
+      pdf.setFontSize(11);
+
+      const splitText = pdf.splitTextToSize(result.aiReport, 170);
+      pdf.text(splitText, margin, y);
+    }
+
+    pdf.save("AI-Website-Audit-Report.pdf");
   };
 
   const signUp = async () => {
@@ -239,24 +339,29 @@ function App() {
   } : null;
 
   return (
-    <div
-      style={{
-        minHeight:"100vh",
-    
-        display:"flex",
-        justifyContent:"center",    
-        alignItems:"center"
-      }}
-    >
-      
-    <div
-      className="glass"
-      style={{
-        width: "650px",  
-        padding: "35px"
-      }}
-    >
+    <>
+      {/* NAVBAR */}
 
+
+      {/* MAIN CONTENT */}
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          paddingTop: "120px"
+        }}
+      >
+        <div
+          className={`glass analyzer-transition ${expanded ? "expanded" : ""}`}
+          style={{ padding: "35px" }}
+        >
+
+          {/* YOUR EXISTING ANALYZER CONTENT STAYS HERE */}
+
+
+    
       {!user && (
         <div>
           <input
@@ -391,14 +496,6 @@ function App() {
               <div className="progress-fill"
                 style={{width:`${result.bestPractices}%`}} />
             </div>
-          
-          </div>
-
-          <div className="progress">
-            <div
-              className="progress-fill"
-              style={{ width:`${result.score}%` }}
-            />
           </div>
 
             <h3>Issues:</h3>
@@ -430,9 +527,9 @@ function App() {
             alt="preview"
  
             style={{
-              width:"100%",
-              borderRadius:"12px",
-              marginTop:"12px"
+              width:"80%",
+              borderRadius:"10px",
+              marginTop:"10px"
             }}
           />
 
@@ -519,9 +616,10 @@ function App() {
 
       )}
 
-     </div>
-   </div>
- );
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default App;

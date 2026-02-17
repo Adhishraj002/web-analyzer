@@ -33,7 +33,9 @@ try {
     // ========= MAIN PAGE =========
     const result = await analyzeWebsite(url);
 
-    const missingAlt = (result.images || []).filter(i=>!i).length;
+    const missingAlt = (result.images || [])
+      .filter(alt => !alt || alt.trim() === "")
+      .length;
 
     // ========= CATEGORY SCORES =========
     let performance = 100;
@@ -80,12 +82,17 @@ try {
     // ========= AUTO SITE CRAWL =========
     const pages = await crawlSite(url,5);
 
-    const siteScore=Math.round(
-        pages.reduce((a,b)=>a+b.score,0)/pages.length
-    );
+    let siteScore = 0;
+    let best = null;
+    let worst = null;
 
-    const best = pages.reduce((a,b)=>a.score>b.score?a:b);
-    const worst = pages.reduce((a,b)=>a.score<b.score?a:b);
+    if(pages.length > 0){
+      siteScore = Math.round(
+        pages.reduce((a,b)=>a+b.score,0)/pages.length
+      );
+      best = pages.reduce((a,b)=>a.score>b.score?a:b);
+      worst = pages.reduce((a,b)=>a.score<b.score?a:b);
+    }
 
     // ========= SAVE HISTORY =========
     await pool.query(
@@ -127,8 +134,8 @@ try {
     });
 
 }catch(e){
-    console.log(e);
-    res.status(500).send("Analyze Failed");
+    console.error("ANALYZE ERROR:", e);
+    res.status(500).send(e.message || "Analyze Failed");
 }
 });
 
@@ -257,6 +264,9 @@ try{
 app.get("/history", async (req,res)=>{
 
     const userId = req.headers.userid;
+
+    if(!userId) 
+        return res.status(401).send("Unauthorized");
 
     const result = await pool.query(
         `SELECT * FROM scans

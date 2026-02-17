@@ -22,26 +22,28 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Login</h2>
+    <div className="auth-container page-shell--top">
+      <div className="glass auth-card analyzer-card">
+        <h2>Login</h2>
 
-      <input
-        placeholder="Email"
-        onChange={e => setEmail(e.target.value)}
-      /><br />
+        <input
+          placeholder="Email"
+          onChange={e => setEmail(e.target.value)}
+        /><br />
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={e => setPassword(e.target.value)}
-      /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          onChange={e => setPassword(e.target.value)}
+        /><br />
 
-      <button onClick={login}>Login</button>
+        <button onClick={login}>Login</button>
 
-      <p>
-        No account?
-        <Link to="/signup"> Sign Up</Link>
-      </p>
+        <p>
+          No account?
+          <Link to="/signup"> Sign Up</Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,51 +1,54 @@
 const analyzeWebsite = require("./analyzer");
 
-async function crawlSite(startUrl, maxPages = 5){
+async function crawlSite(baseUrl, limit = 5) {
 
-    const visited = new Set();
-    const queue = [startUrl];
-    const results = [];
+  const visited = new Set();
+  const results = [];
 
-    const baseDomain = new URL(startUrl).hostname;
+  async function crawl(url) {
+    if (visited.has(url) || results.length >= limit) return;
 
-    while(queue.length && visited.size < maxPages){
+    visited.add(url);
 
-        const url = queue.shift();
+    try {
+      const data = await analyzeWebsite(url);
 
-        if(visited.has(url)) continue;
-        visited.add(url);
+      // 🔥 BETTER SCORE CALCULATION
+      let score = 100;
 
-        try{
-            const data = await analyzeWebsite(url);
+      // Performance penalty
+      if (data.loadTime > 2000) score -= 10;
+      if (data.loadTime > 4000) score -= 15;
+      if (data.loadTime > 7000) score -= 20;
 
-            results.push({
-                url,
-                score: Math.max(0,
-                    100
-                    - (data.loadTime/40)
-                    - (data.brokenLinks * 5)
-                    - (data.inputsWithoutLabel * 3)
-                ),
-                issues:data.brokenLinks,
-                raw:data
-            });
+      // Broken links penalty
+      score -= data.brokenLinks * 5;
 
-            // Collect internal links
-            for(const link of data.links){
-                try{
-                    const host = new URL(link).hostname;
-                    if(host === baseDomain && !visited.has(link)){
-                        queue.push(link);
-                    }
-                }catch{}
-            }
+      // Accessibility penalty
+      score -= data.inputsWithoutLabel * 3;
 
-        }catch(e){
-            console.log("Skip:",url);
+      score = Math.max(score, 0);
+
+      results.push({
+        url,
+        score
+      });
+
+      // Crawl internal links
+      for (const link of data.links.slice(0, 5)) {
+        if (link.startsWith(new URL(baseUrl).origin)) {
+          await crawl(link);
         }
-    }
+      }
 
-    return results;
+    } catch (err) {
+      console.log("Crawl skip:", url);
+    }
+  }
+
+  await crawl(baseUrl);
+
+  return results;
 }
 
 module.exports = crawlSite;
