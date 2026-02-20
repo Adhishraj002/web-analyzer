@@ -12,6 +12,7 @@ function Layout() {
   return (
     <BrowserRouter>
 
+      {/* ── Fixed Navbar (always visible) ── */}
       <div className="nav-bar">
         <div className="nav-left">
           <Hamburger />
@@ -19,41 +20,41 @@ function Layout() {
 
         <div className="nav-center">
           <div className="nav-links">
-            <Link to="/" className="nav-link">Analyzer</Link>
+            <Link to="/" className="nav-link">🌐 Analyzer</Link>
             <Link to="/login" className="nav-link">Login</Link>
-            <Link to="/signup" className="nav-link">Signup</Link>
+            <Link to="/signup" className="nav-link">Sign Up</Link>
             <Link to="/compare" className="nav-link">Compare</Link>
             <Link to="/dashboard" className="nav-link">Dashboard</Link>
           </div>
         </div>
 
-        <div className="nav-right"></div>
+        <div className="nav-right">
+          <span className="nav-logo-text">AI Web Analyzer</span>
+        </div>
       </div>
 
-      <div className="page-shell">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+      {/* ── Route Content — NO page-shell wrapper for any page (each handles its own layout) ── */}
+      <Routes>
+        {/* PUBLIC home route — shows full hero + analyzer */}
+        <Route path="/" element={<App />} />
 
-          <Route path="/" element={
-            <ProtectedRoute>
-              <App />
-            </ProtectedRoute>
-          } />
+        {/* Auth pages — each has its own auth-page layout */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+        {/* Protected pages — each has its own premium-page layout */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
 
-          <Route path="/compare" element={
-            <ProtectedRoute>
-              <Compare />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </div>
+        <Route path="/compare" element={
+          <ProtectedRoute>
+            <Compare />
+          </ProtectedRoute>
+        } />
+      </Routes>
 
     </BrowserRouter>
   );
